@@ -1,0 +1,55 @@
+name: Docker Fullstack CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ------------------------------------------------------------
+      # 1. Checkout repository
+      # ------------------------------------------------------------
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      # ------------------------------------------------------------
+      # 2. Setup Docker Buildx
+      # ------------------------------------------------------------
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # ------------------------------------------------------------
+      # 3. Login to Docker Hub
+      # ------------------------------------------------------------
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # ------------------------------------------------------------
+      # 4. Build & Push BACKEND (Spring Boot)
+      # ------------------------------------------------------------
+      - name: Build and push backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./filesharing-be/filesystem-be
+          file: ./filesharing-be/filesystem-be/backend.Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/filesharing-backend:latest
+
+      # ------------------------------------------------------------
+      # 5. Build & Push FRONTEND (React)
+      # ------------------------------------------------------------
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./filesharing-fe/filesharing-fd
+          file: ./filesharing-fe/filesharing-fd/frontend.Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/filesharing-frontend:latest
