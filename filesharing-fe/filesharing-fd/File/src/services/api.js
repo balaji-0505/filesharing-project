@@ -1,5 +1,5 @@
-// BASE URL for frontend → nginx → backend
-const BASE = "/api";
+// Frontend API base URL. In production, set VITE_API_URL to the deployed backend URL.
+const BASE = `${import.meta.env.VITE_API_URL || ""}/api`;
 
 const getToken = () => localStorage.getItem('authToken');
 
@@ -207,7 +207,6 @@ export const sharesApi = {
       method: "DELETE",
       headers: { Authorization: `Bearer ${getToken()}` }
     });
-
     if (!res.ok) throw new Error("Delete share failed");
   }
 };
